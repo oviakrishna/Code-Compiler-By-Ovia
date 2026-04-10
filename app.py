@@ -206,15 +206,24 @@ def run_code():
         return make_response(jsonify({"error": str(e), "stdout": "", "stderr": ""}), 500)
 
 
+# ─── Localhost-only guard ──────────────────────────────────────────────────────
+def is_local():
+    return request.remote_addr in ("127.0.0.1", "::1")
+
+
 # ─── Report page ──────────────────────────────────────────────────────────────
 @app.route("/report")
 def report_page():
+    if not is_local():
+        return "Not found", 404
     return send_from_directory(".", "report.html")
 
 
 # ─── Report API ───────────────────────────────────────────────────────────────
 @app.route("/api/report")
 def report():
+    if not is_local():
+        return "Not found", 404
     try:
         pipeline = [
             {
@@ -238,6 +247,8 @@ def report():
 # ─── User Report API ──────────────────────────────────────────────────────────
 @app.route("/api/user-report")
 def user_report():
+    if not is_local():
+        return "Not found", 404
     try:
         pipeline = [
             {
